@@ -1,6 +1,5 @@
 import * as path from 'node:path'
 import * as fs from 'node:fs'
-import packageJson from './package.json.template'
 import { fontSplit } from 'cn-font-split';
 import { program } from 'commander'
 import { Octokit } from '@octokit/rest'
@@ -9,11 +8,11 @@ const options = program
   .name('')
   .description('')
   .version('')
-  .option('-i, --srcdir <string>', "input directory")
-  .option('-o, --dstdir <string>', "output directory", "./dist")
+  // .option('-i, --srcdir <string>', "input directory")
+  .option('-o, --dstdir <string>', "output directory")
   .parse()
   .opts<{
-    srcdir: string,
+    // srcdir: string,
     dstdir: string
   }>();
 
@@ -86,11 +85,11 @@ await Promise.all(Object.entries(files).map(async ([name, data]) => {
     reporter: true,             // 是否生成 reporter.bin 文件
 
     // 自定义分包输出的文件名为 6 位短哈希，或者使用自增索引: '[index].[ext]'
-    renameOutputFont: '[index][ext]',
+    renameOutputFont: '[index].[ext]',
     // 不在控制台打印多余的日志信息
     silent: true,
   });
-  await fs.promises.writeFile(
+  await fs.promises.appendFile(
     path.resolve(options.dstdir, `style.css`),
     `@import url('./${fontName}/result.css');`,
     {
@@ -101,11 +100,8 @@ await Promise.all(Object.entries(files).map(async ([name, data]) => {
 
 await fs.promises.writeFile(
   path.resolve(options.dstdir, `VERSION`),
-  version,
+  `v${version}`,
   {
     flag: 'w',
   }
 );
-
-const package_buffer = JSON.stringify(packageJson, null, 2)
-await fs.promises.writeFile(path.resolve(options.dstdir, `package.json`), package_buffer)

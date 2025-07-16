@@ -1,7 +1,7 @@
 {
 	"scripts": {
 		"build": "tsup",
-		"start": "node ."
+		"start": "node . -o ./private"
 	},
 	"type": "module",
 	"main": "dist/index.js",

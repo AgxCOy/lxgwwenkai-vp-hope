@@ -5,18 +5,18 @@
   "main": "style.css",
   "style": "style.css",
   "files": [
-      "lxgwwenkai-medium",
-      "lxgwwenkai-light",
-      "lxgwwenkai-regular",
-      "*.css",
-      "VERSION"
+    "lxgwwenkai-medium",
+    "lxgwwenkai-light",
+    "lxgwwenkai-regular",
+    "*.css",
+    "VERSION"
   ],
   "keywords": [
-      "lxgw-wenkai",
-      "cjk",
-      "font",
-      "webfont",
-      "css"
+    "lxgw-wenkai",
+    "cjk",
+    "font",
+    "webfont",
+    "css"
   ],
   "author": "AgxCOy <caclx@outlook.com>",
   "license": "MIT"

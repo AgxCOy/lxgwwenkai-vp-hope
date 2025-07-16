@@ -6,19 +6,19 @@ node -v
 corepack enable pnpm
 pnpm -v
 
-# 安装 package.json 里所有的生产依赖
-pnpm --production
+pnpm i
+pnpm build
+pnpm start
 
-# pnpm i cn-font-split
-# pnpm i commander
-
-node lxgw.js -i /lxgw
-pnpx css-minify -d /dist
+cp ./src/package.json.template ./private/package.json
+pnpx css-minify -d /private
 
 PKG_TOKEN=8614a238a97249223cedc574b13c6b2c7c325abc
 pnpm config set @agxcoy:registry https://git.liteyuki.org/api/packages/AgxCOy/npm
 pnpm config set -- '//git.liteyuki.org/api/packages/AgxCOy/npm/:_authToken' "$PKG_TOKEN"
 
-cd /dist
+cd /private
+NVER=$(cat ./VERSION | sed 's/^v//' | awk -F. '{if($3==null) print$1"."$2".0"; else print$0}')
+pnpm version $NVER --no-git-tag-version
 pnpm adduser --registry https://git.liteyuki.org/api/packages/AgxCOy/npm --scope=@agxcoy --auth-type=legacy
 pnpm publish --access public
