@@ -19,12 +19,11 @@ jobs:
       - name: Configure pnpm
         uses: pnpm/action-setup@v4
 
-      - name: Use Node.js
+      - name: Use Node.js (Official Sources for Build)
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: 'latest'
           cache: 'pnpm'
-          registry-url: 'https://git.liteyuki.org/api/packages/AgxCOy/npm'
 
       - name: Build Font Package
         run: |
@@ -35,6 +34,13 @@ jobs:
           cp src/package.json.template private/package.json
           NVER=$(cat ./VERSION | sed 's/^v//' | awk -F. '{if($3==null) print$1"."$2".0"; else print$0}')
           pnpm version $NVER --no-git-tag-version
+
+      - name: Use Node.js (liteyuki Sources for Publish)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+          registry-url: 'https://git.liteyuki.org/api/packages/AgxCOy/npm'
 
       - name: Publish to npm
         run: |
