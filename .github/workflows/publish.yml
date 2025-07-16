@@ -19,22 +19,16 @@ jobs:
       - name: Configure pnpm
         uses: pnpm/action-setup@v4
 
-      - name: Use Node.js (Official Sources for Build)
-        uses: actions/setup-node@v4
-        with:
-          node-version: 'latest'
-          cache: 'pnpm'
-
-      - name: Build Font Package
-        run: |
-          pnpm install && pnpm build && pnpm start
-
-      - name: Use Node.js (GitHub Sources for Publish)
+      - name: Use Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'pnpm'
-          registry-url: 'https://npm.pkg.github.com'
+          registry-url: 'https://registry.npmjs.org/'
+
+      - name: Build Font Package
+        run: |
+          pnpm install && pnpm build && pnpm start
 
       - name: Publish
         run: |
@@ -44,4 +38,4 @@ jobs:
           pnpm version $NVER --no-git-tag-version
           pnpm publish --access public --no-git-checks || echo "No updates from upstream. Skip publishing."
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
