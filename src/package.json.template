@@ -1,0 +1,23 @@
+{
+  "name": "@agxcoy/lxgw-wenkai-vp-hope",
+  "version": "1.501.0",
+  "description": "LXGW WenKai Web Fonts rebuild for vuepress-theme-hope.",
+  "main": "style.css",
+  "style": "style.css",
+  "files": [
+      "lxgwwenkai-medium",
+      "lxgwwenkai-light",
+      "lxgwwenkai-regular",
+      "*.css",
+      "VERSION"
+  ],
+  "keywords": [
+      "lxgw-wenkai",
+      "cjk",
+      "font",
+      "webfont",
+      "css"
+  ],
+  "author": "AgxCOy <caclx@outlook.com>",
+  "license": "MIT"
+}

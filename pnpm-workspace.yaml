@@ -1,0 +1,7 @@
+ignoredBuiltDependencies:
+  - koffi
+  - protobufjs
+
+onlyBuiltDependencies:
+  - cn-font-split
+  - esbuild
