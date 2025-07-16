@@ -1,0 +1,44 @@
+name: Publish
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * 1"
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+          registry-url: 'https://git.liteyuki.org/api/packages/AgxCOy/npm'
+
+      - name: Build Font Package
+        run: |
+          pnpm install && pnpm build && pnpm start
+
+      - name: Set version
+        run: |
+          cp src/package.json.template private/package.json
+          NVER=$(cat ./VERSION | sed 's/^v//' | awk -F. '{if($3==null) print$1"."$2".0"; else print$0}')
+          pnpm version $NVER --no-git-tag-version
+
+      - name: Publish to npm
+        run: |
+          cd private/
+          pnpm publish --access public --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
