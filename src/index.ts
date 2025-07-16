@@ -17,8 +17,7 @@ const options = program
   }>();
 
 const octokit = new Octokit({
-  // 环境变量
-  // auth: process.env.GITHUB_TOKEN,
+  auth: process.env.GITHUB_TOKEN,
 });
 
 const res = await octokit.request('GET /repos/{owner}/{repo}/releases/latest', {

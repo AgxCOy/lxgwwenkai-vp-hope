@@ -29,6 +29,8 @@ jobs:
       - name: Build Font Package
         run: |
           pnpm install && pnpm build && pnpm start
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish
         run: |
