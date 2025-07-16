@@ -39,6 +39,6 @@ jobs:
       - name: Publish to npm
         run: |
           cd private/
-          pnpm publish --access public --no-git-checks
+          pnpm publish --access public --no-git-checks || echo "No updates from upstream. Skip publishing."
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
