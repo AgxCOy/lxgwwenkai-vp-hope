@@ -39,15 +39,15 @@ const files = await Promise.all(res.data.assets
 )
   .then(i => Object.fromEntries(i) as Record<string, Uint8Array>)
 
-const fontWeights = {
-  ['LXGWWenKai-Light.ttf']: 400,
-  ['LXGWWenKai-Medium.ttf']: 600,
-  ['LXGWWenKai-Regular.ttf']: 700,
+const fontMetas = {
+  ['LXGWWenKai-Light.ttf']: { weight: 400, local: "LXGW WenKai Light" },
+  ['LXGWWenKai-Medium.ttf']: { weight: 600, local: "LXGW WenKai Medium" },
+  ['LXGWWenKai-Regular.ttf']: { weight: 700, local: "LXGW WenKai" },
 }
 
 await Promise.all(Object.entries(files).map(async ([name, data]) => {
   const fontName = name.replace('.ttf', '').toLowerCase();
-  const fontWeight = fontWeights[name as keyof typeof fontWeights];
+  const fontMeta = fontMetas[name as keyof typeof fontMetas];
   await fontSplit({
     input: data,         // 输入的字体缓冲区
     outDir: path.resolve(options.dstdir, fontName),      // 输出目录
@@ -59,10 +59,10 @@ await Promise.all(Object.entries(files).map(async ([name, data]) => {
 
     css: {                        // CSS 输出产物配置，一般而言不需要手动配置
       fontFamily: 'LXGW WenKai',     // 输出 css 产物的 font-family 名称
-      fontWeight: fontWeight.toString(),           // 字重: 400 (常规)、700(粗体), 详细可见 https://developer.mozilla.org/en-US/docs/Web/CSS/font-weight
+      fontWeight: fontMeta.weight.toString(),           // 字重: 400 (常规)、700(粗体), 详细可见 https://developer.mozilla.org/en-US/docs/Web/CSS/font-weight
       // fontStyle: 'normal',         // 字体样式: normal (常规)、italic (斜体)。可见 https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-style
       // fontDisplay: 'swap',         // 字体显示策略，推荐 swap。可见 https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display
-      // localFamily: ['Test Sans'],  // 本地字体族名称。可见 https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face
+      localFamily: [fontMeta.local],  // 本地字体族名称。可见 https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face
       // commentUnicodes: false,      // 在 CSS 中添加 Unicode 码点注释
       // compress: true               // 压缩生成的 CSS 产物
     },
