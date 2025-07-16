@@ -91,10 +91,7 @@ await Promise.all(Object.entries(files).map(async ([name, data]) => {
   });
   await fs.promises.appendFile(
     path.resolve(options.dstdir, `style.css`),
-    `@import url('./${fontName}/result.css');`,
-    {
-      flag: 'w+',
-    }
+    `@import url('./${fontName}/result.css');`
   );
 }))
 
