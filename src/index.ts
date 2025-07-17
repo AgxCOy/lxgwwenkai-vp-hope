@@ -39,9 +39,9 @@ const files = await Promise.all(res.data.assets
   .then(i => Object.fromEntries(i) as Record<string, Uint8Array>)
 
 const fontMetas = {
-  ['LXGWWenKai-Light.ttf']: { weight: 400, local: "LXGW WenKai Light" },
+  ['LXGWWenKai-Light.ttf']: { weight: 300, local: "LXGW WenKai Light" },
   ['LXGWWenKai-Medium.ttf']: { weight: 600, local: "LXGW WenKai Medium" },
-  ['LXGWWenKai-Regular.ttf']: { weight: 700, local: "LXGW WenKai" },
+  ['LXGWWenKai-Regular.ttf']: { weight: 400, local: "LXGW WenKai" },
 }
 
 await Promise.all(Object.entries(files).map(async ([name, data]) => {
