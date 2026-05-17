@@ -1,0 +1,36 @@
+name: 部署文档
+
+on:
+  # repository_dispatch:  # 关键！监听 API 触发
+  #   types: [github-push]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: [ubuntu-latest, liteyuki]
+    steps:
+      - name: self checkout
+        uses: actions/checkout@v4
+
+      - name: 设置 pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: latest
+          cache: pnpm
+
+      - name: build
+        run: |
+          git clone https://github.com/AgxCOy/blogs.git --depth 1
+          cd blogs
+          pnpm install && pnpm build
+
+      - name: to edgeone
+        env:
+          EDGEONE_PAGES_API_TOKEN: ${{ secrets.EDGEONE_PAGES_API_TOKEN }}
+        run: |
+          pnpm dlx edgeone pages deploy blogs/.vitepress/dist \
+            --name agxcoy-blogs \
+            --token $EDGEONE_PAGES_API_TOKEN
