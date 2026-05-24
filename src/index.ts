@@ -27,7 +27,8 @@ const res = await octokit.request('GET /repos/{owner}/{repo}/releases/latest', {
 
 const version = res.data.tag_name.substring(1) // v1.520
 const files = await Promise.all(res.data.assets
-  .filter(i => i.name.endsWith('.ttf') && !i.name.includes("Mono"))
+  .filter(
+    i => i.name.startsWith('LXGWWenKai-') && !i.name.includes("Light"))
   .map(i => i.browser_download_url)
   .map(async i => {
     const name = path.basename(i)
@@ -39,7 +40,7 @@ const files = await Promise.all(res.data.assets
   .then(i => Object.fromEntries(i) as Record<string, Uint8Array>)
 
 const fontMetas = {
-  ['LXGWWenKai-Light.ttf']: { weight: 300, local: "LXGW WenKai Light" },
+  // ['LXGWWenKai-Light.ttf']: { weight: 300, local: "LXGW WenKai Light" },
   ['LXGWWenKai-Medium.ttf']: { weight: 600, local: "LXGW WenKai Medium" },
   ['LXGWWenKai-Regular.ttf']: { weight: 400, local: "LXGW WenKai" },
 }
@@ -75,8 +76,8 @@ await Promise.all(Object.entries(files).map(async ([name, data]) => {
     // chunkSizeTolerance: 1 * 1024,   // 分片容差，一般不需要修改
     // maxAllowSubsetsCount: 10,       // 最大允许分包数量，可能会和 chunkSize 冲突
 
-    testHtml: true,             // 是否生成测试 HTML 文件
-    reporter: true,             // 是否生成 reporter.bin 文件
+    testHtml: false,             // 是否生成测试 HTML 文件
+    reporter: false,             // 是否生成 reporter.bin 文件
 
     // 自定义分包输出的文件名为 6 位短哈希，或者使用自增索引: '[index].[ext]'
     renameOutputFont: '[index].[ext]',
