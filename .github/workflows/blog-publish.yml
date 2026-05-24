@@ -1,4 +1,4 @@
-name: 部署文档
+name: 部署博客
 
 on:
   # repository_dispatch:  # 关键！监听 API 触发
@@ -8,6 +8,8 @@ on:
 jobs:
   build:
     runs-on: [ubuntu-latest, liteyuki]
+    # outputs:
+    #   lxgw-wenkai: ${{ toJson(steps.pkgfont.outputs) }}
     steps:
       - name: self checkout
         uses: actions/checkout@v4
@@ -18,12 +20,49 @@ jobs:
       - name: 设置 Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: latest
+          node-version: '20'
           cache: pnpm
+
+      - name: Build Font Package
+        run: |
+          pnpm install && pnpm build && pnpm start
+        # env:
+        #   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # - name: Packing Fonts
+      #   id: pkgfont
+      #   uses: actions/upload-artifact@v6
+      #   with:
+      #     name: lxgw-wenkai
+      #     path: private/**/*
+      #     compression-level: 9
+
+  # blogbuild:
+  #   runs-on: [ubuntu-latest, liteyuki]
+  #   needs:
+  #     - fontgen
+  #   steps:
+  #     - name: 设置 pnpm
+  #       uses: pnpm/action-setup@v4
+  #       with:
+  #         version: 10
+
+  #     - name: 设置 Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: latest
+  #         cache: pnpm
+
+  #     - name: Download Font Artifact
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: lxgw-wenkai
+  #         path: fonts
 
       - name: build
         run: |
           git clone https://github.com/AgxCOy/blogs.git --depth 1
+          mv private blogs/public/fonts
           cd blogs
           pnpm install && pnpm build
 

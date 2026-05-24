@@ -89,11 +89,3 @@ await Promise.all(Object.entries(files).map(async ([name, data]) => {
     `@import url('./${fontName}/result.css');`
   );
 }))
-
-await fs.promises.writeFile(
-  path.resolve(options.dstdir, `VERSION`),
-  `v${version}`,
-  {
-    flag: 'w',
-  }
-);
