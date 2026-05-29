@@ -1,0 +1,55 @@
+name: Build and Release Font
+
+on:
+  workflow_run:
+    workflows: ["Check Upstream Release"]
+    types:
+      - completed
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    steps:
+      - name: 检出当前仓库
+        uses: actions/checkout@v4
+
+      - name: 获取上游最新版本
+        id: version
+        run: |
+          VERSION=$(gh release view -R lxgw/LxgwWenkai --json tagName --jq '.tagName')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 设置 pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: 安装依赖
+        run: pnpm install
+
+      - name: 构建字体
+        run: pnpm build && pnpm start
+
+      - name: 打包字体产物
+        run: |
+          mkdir -p dist
+          tar -czf "dist/fonts-${{ steps.version.outputs.version }}.tar.gz" private/
+
+      - name: 创建 Release 并上传产物
+        run: |
+          TAG="${{ steps.version.outputs.version }}"
+          gh release create "$TAG" \
+            --title "Font Build $TAG" \
+            --notes "Auto-built from lxgw/LxgwWenkai $TAG" \
+            --draft=false \
+            --latest=true || true
+          gh release upload "$TAG" dist/*.tar.gz --clobber
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

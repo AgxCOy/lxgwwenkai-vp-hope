@@ -1,0 +1,43 @@
+name: Check Upstream Release
+
+on:
+  schedule:
+    - cron: '0 2 * * 1'
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      should_build: ${{ steps.compare.outputs.should_build }}
+      new_version: ${{ steps.compare.outputs.new_version }}
+    steps:
+      - name: 获取当前已构建的版本
+        id: current
+        run: |
+          LATEST_TAG=$(gh release list --limit 1 --json tagName --jq '.[0].tagName' || echo "v0.0.0")
+          CURRENT_VERSION=${LATEST_TAG#v}
+          echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 获取上游最新版本
+        id: upstream
+        run: |
+          LATEST=$(gh release view -R lxgw/LxgwWenkai --json tagName --jq '.tagName')
+          echo "latest_version=$LATEST" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 比对版本
+        id: compare
+        run: |
+          current="${{ steps.current.outputs.current_version }}"
+          latest="${{ steps.upstream.outputs.latest_version }}"
+
+          if [[ "$latest" != "null" ]] && dpkg --compare-versions "$latest" gt "$current"; then
+            echo "should_build=true" >> $GITHUB_OUTPUT
+            echo "new_version=$latest" >> $GITHUB_OUTPUT
+          else
+            echo "should_build=false" >> $GITHUB_OUTPUT
+          fi
