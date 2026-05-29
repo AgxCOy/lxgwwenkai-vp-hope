@@ -1,0 +1,84 @@
+name: Build and Release Font
+
+on:
+  schedule:
+    - cron: '0 2 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  checkUpdate:
+    runs-on: ubuntu-latest
+    outputs:
+      should_build: ${{ steps.compare.outputs.should_build }}
+      new_version: ${{ steps.compare.outputs.new_version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 获取当前已构建的版本
+        id: current
+        run: |
+          LATEST_TAG=$(gh release list --limit 1 --json tagName --jq '.[0].tagName' || echo "v0.0.0")
+          CURRENT_VERSION=${LATEST_TAG#v}
+          echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 获取上游最新版本
+        id: upstream
+        run: |
+          LATEST=$(gh release view -R lxgw/LxgwWenkai --json tagName --jq '.tagName')
+          echo "latest_version=${LATEST#v}" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 比对版本
+        id: compare
+        run: |
+          current="${{ steps.current.outputs.current_version }}"
+          latest="${{ steps.upstream.outputs.latest_version }}"
+
+          if [[ "$latest" != "null" ]] && dpkg --compare-versions "$latest" gt "$current"; then
+            echo "should_build=true" >> $GITHUB_OUTPUT
+            echo "new_version=$latest" >> $GITHUB_OUTPUT
+          else
+            echo "should_build=false" >> $GITHUB_OUTPUT
+          fi
+
+  build:
+    runs-on: ubuntu-latest
+    needs: 
+      - checkUpdate
+    if: ${{ needs.checkUpdate.outputs.should_build == 'true' }}
+    env:
+      REL_VER: "v${{ needs.checkUpdate.outputs.new_version }}"
+    steps:
+      - name: 检出当前仓库
+        uses: actions/checkout@v4
+
+      - name: 设置 pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: 安装依赖
+        run: pnpm install
+
+      - name: 构建字体
+        run: pnpm build && pnpm start
+
+      - name: 打包字体产物
+        run: |
+          mkdir -p dist
+          tar -czf "dist/fonts-${{ env.REL_VER }}.tar.gz" private/
+
+      - name: 创建 Release 并上传产物
+        run: |
+          gh release create "${{ env.REL_VER }}" \
+            --title "Font Build ${{ env.REL_VER }}" \
+            --notes "Auto-built from lxgw/LxgwWenkai ${{ env.REL_VER }}" \
+            --draft=false \
+            --latest=true || true
+          gh release upload "${{ env.REL_VER }}" dist/*.tar.gz --clobber
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
